@@ -64,14 +64,14 @@ const MessageReactions: FC<MessageReactionsProps> = ({
   const isThumbUpAction = currentMsgActionName === MessageActionsId.THUMBSUP;
   const isLikeAction = currentMsgActionName === MessageActionsId.HEART;
   const [showEmojis, setShowEmojis] = useState(false);
-  const {handleMenuOpen} = useMessageActionsState();
+  const {closeMenu, openMenu} = useMessageActionsState();
   const [clientX, setPOSX] = useState(INITIAL_CLIENT_X_POS);
   const [clientY, setPOSY] = useState(INITIAL_CLIENT_Y_POS);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleEmojiSelectionWithKeyboard = () => {
     if (showEmojis) {
-      handleMenuOpen(false);
+      closeMenu();
       setShowEmojis(false);
     }
     if (emojiButtonRef.current) {
@@ -88,10 +88,14 @@ const MessageReactions: FC<MessageReactionsProps> = ({
     (actionName = '') => {
       const isActive = !!actionName;
       handleCurrentMsgAction(actionName);
-      handleMenuOpen(isActive);
+      if (isActive) {
+        openMenu(message.id);
+      } else {
+        closeMenu();
+      }
       setShowEmojis(isActive);
     },
-    [handleCurrentMsgAction, handleMenuOpen],
+    [handleCurrentMsgAction, openMenu, closeMenu],
   );
 
   const handleEmojiBtnClick = useCallback(
