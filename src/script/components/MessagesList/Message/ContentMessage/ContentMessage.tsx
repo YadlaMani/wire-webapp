@@ -20,6 +20,7 @@
 import React, {useMemo, useState, useEffect} from 'react';
 
 import {QualifiedId} from '@wireapp/api-client/lib/user';
+import cx from 'classnames';
 
 import {Conversation} from 'src/script/entity/Conversation';
 import {CompositeMessage} from 'src/script/entity/message/CompositeMessage';
@@ -135,35 +136,17 @@ const ContentMessageComponent: React.FC<ContentMessageProps> = ({
   });
 
   const [isActionMenuVisible, setActionMenuVisibility] = useState(true);
-  const isMenuOpen = useMessageActionsState(state => state.isMenuOpen);
+  const openedMenu = useMessageActionsState(state => state.openedMenu);
+
   useEffect(() => {
-    if (isMessageFocused || msgFocusState) {
-      setActionMenuVisibility(true);
-    } else {
-      setActionMenuVisibility(false);
-    }
-  }, [msgFocusState, isMessageFocused]);
+    setActionMenuVisibility(isMessageFocused || msgFocusState || openedMenu === message.id);
+  }, [msgFocusState, isMessageFocused, openedMenu, setActionMenuVisibility, message.id]);
 
   const reactionGroupedByUser = groupByReactionUsers(reactions);
   const reactionsTotalCount = Array.from(reactionGroupedByUser).length;
 
   return (
-    <div
-      aria-label={messageAriaLabel}
-      className="content-message-wrapper"
-      onMouseEnter={event => {
-        // open another floating action menu if none already open
-        if (!isMenuOpen) {
-          setActionMenuVisibility(true);
-        }
-      }}
-      onMouseLeave={event => {
-        // close floating message actions when no active menu is open like context menu/emoji picker
-        if (!isMenuOpen) {
-          setActionMenuVisibility(false);
-        }
-      }}
-    >
+    <div aria-label={messageAriaLabel} className={cx('content-message-wrapper', {actionable: !openedMenu})}>
       {shouldShowAvatar() && (
         <MessageHeader onClickAvatar={onClickAvatar} message={message} focusTabIndex={messageFocusedTabIndex}>
           {was_edited && (
@@ -224,19 +207,18 @@ const ContentMessageComponent: React.FC<ContentMessageProps> = ({
             />
           )}
         </div>
-        {isActionMenuVisible && (
+        <div className={cx('message-actions-wrapper', {visible: isActionMenuVisible})}>
           <MessageActionsMenu
             isMsgWithHeader={shouldShowAvatar()}
             message={message}
             handleActionMenuVisibility={setActionMenuVisibility}
             contextMenu={contextMenu}
             isMessageFocused={msgFocusState}
-            messageWithSection={hasMarker}
             handleReactionClick={onClickReaction}
             reactionsTotalCount={reactionsTotalCount}
             isRemovedFromConversation={conversation.removed_from_conversation()}
           />
-        )}
+        </div>
 
         <div className="message-body-actions">
           <ReadReceiptStatus
