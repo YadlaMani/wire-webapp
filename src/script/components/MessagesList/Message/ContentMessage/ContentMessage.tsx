@@ -17,7 +17,7 @@
  *
  */
 
-import React, {useMemo, useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 
 import {QualifiedId} from '@wireapp/api-client/lib/user';
 import cx from 'classnames';
@@ -87,10 +87,7 @@ const ContentMessageComponent: React.FC<ContentMessageProps> = ({
   onClickReaction,
 }) => {
   // check if current message is focused and its elements focusable
-  const msgFocusState = useMemo(
-    () => isMsgElementsFocusable && isMessageFocused,
-    [isMsgElementsFocusable, isMessageFocused],
-  );
+  const msgFocusState = isMsgElementsFocusable && isMessageFocused;
   const messageFocusedTabIndex = useMessageFocusedTabIndex(msgFocusState);
   const {
     senderName,
