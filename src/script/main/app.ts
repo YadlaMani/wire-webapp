@@ -68,7 +68,6 @@ import {ClientError, CLIENT_ERROR_TYPE} from '../error/ClientError';
 import {TeamError} from '../error/TeamError';
 import {EventRepository} from '../event/EventRepository';
 import {EventService} from '../event/EventService';
-import {EventServiceNoCompound} from '../event/EventServiceNoCompound';
 import {NotificationService} from '../event/NotificationService';
 import {QuotedMessageMiddleware} from '../event/preprocessor/QuotedMessageMiddleware';
 import {ReceiptsMiddleware} from '../event/preprocessor/ReceiptsMiddleware';
@@ -130,7 +129,7 @@ export class App {
   service: {
     asset: AssetService;
     conversation: ConversationService;
-    event: EventService | EventServiceNoCompound;
+    event: EventService;
     integration: IntegrationService;
     notification: NotificationService;
     storage: StorageService;
@@ -289,7 +288,7 @@ export class App {
   private _setupServices() {
     container.registerInstance(StorageService, new StorageService());
     const storageService = container.resolve(StorageService);
-    const eventService = Runtime.isEdge() ? new EventServiceNoCompound() : new EventService();
+    const eventService = new EventService();
 
     return {
       asset: container.resolve(AssetService),
